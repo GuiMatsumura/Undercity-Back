@@ -17,4 +17,24 @@ const registerUser = async (req, res) => {
   }
 };
 
-export default { registerUser };
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await userService.login({ email, password });
+
+    if (!result.success) {
+      return res.status(401).json({ message: result.message });
+    }
+
+    res.cookie("authToken", result.token, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({ message: "Login bem-sucedido" });
+  } catch (error) {
+    res.status(500).json({ message: "Erro no servidor", error: error.message });
+  }
+};
+
+export default { registerUser, login };
